@@ -935,7 +935,7 @@ In order to answer this question, we need `Salary_CompanySize` dataframe. Afterw
 ```{r}
 SF_5000more <- Salary_CompanySize %>% filter(Area == "San Francisco" & Company_Size == "5000+")
 NYC_startup <- Salary_CompanySize %>% 
-  filter(Area == "New York City" & (Company_Size == "51-20" | Company_Size == "<51"))
+  filter(Area == "New York City" & (Company_Size == "51-200" | Company_Size == "<51"))
 head(SF_5000more)
 head(NYC_startup)
 ```
@@ -943,25 +943,29 @@ head(NYC_startup)
 Nice! We've got our subset dataframes. Subsequently, in order to answer the third question, it will be too risky if we employ average directly to combine all monthly data in San Francisco and NYC. Therefore, to capture all information missed by the mean method, we're going to use scatter plot for each area.
 
 ```{r}
-plot(x = SF_5000more$Date, y = SF_5000more$Salary,
-     main = "Salary at Big Corporates in San Francisco",
-     xlab = "Year",
-     ylab = "Salary in USD",
-     panel.first = grid())
+NYC_startup_agg <- NYC_startup %>% select(Area, Date, Salary) %>% 
+  group_by(Area, Date) %>% 
+  summarise(Mean_Salary = mean(Salary)) %>% 
+  ungroup() %>% 
+  rename(Salary = Mean_Salary)
+
+ggplot(SF_5000more, aes(x = Date,
+                        y = Salary)) +
+  geom_jitter(aes(color = Area)) +
+  geom_jitter(data = NYC_startup_agg, aes(color = Area)) +
+  labs(title = "Salary at SF's Big Corporates & NYC's Startups",
+       x = "Year",
+       y = "Salary in USD",
+       color = "") +
+  scale_color_manual(labels = c("NYC's Startups", "SF's Big Corporates"), values = c("blue", "red")) +
+  theme_gdocs() +
+  theme(axis.text.x = element_text(size = 8), axis.title.x = element_text(size = 11),
+        axis.text.y = element_text(size = 8), axis.title.y = element_text(size = 11),
+        plot.title = element_text(size = 14, face = "bold", color = "darkgreen", hjust = 0.7))
+  
 ```
 
-```{r}
-NYC_startup_agg <- aggregate(formula = Salary ~ Date, data = NYC_startup, FUN = mean)
-
-plot(x = NYC_startup_agg$Date, y = NYC_startup_agg$Salary, 
-     type = "p", 
-     main = "Salary at Startups in New York City",
-     xlab = "Year",
-     ylab = "Salary in USD",
-     panel.first = grid())
-```
-
-By looking at two figures above, it is proven that for 2018 and 2019, big companies in San Francisco always pay their employees higher than startups in New York City pay. Therefore, there is an advice for this case:
+By looking at the figure above, it is proven that for 2018 and 2019, big companies in San Francisco always pay their employees higher than startups in New York City pay. Therefore, there is an advice for this case:
 
 ```
 If you were to work in the US and choose either to work in San Francisco or New York City, it is recommended to apply for a job at a big company. It produces more money for you!
