@@ -28,7 +28,7 @@ This article aims to meet the second LBB (Learn by Building) assignment from Alg
 
 * The usage of `dplyr` package is emphasized.
 * More research questions are provided.
-* `ggplot2` and `plotly` packages are utilized to plot the data.
+* `ggplot2` and `plotly` packages are utilized to plot the data instead of base plot.
 
 In this article, you could expect to find the following sections:
 
@@ -99,12 +99,13 @@ We have identified the data, so now we're going to prepare the data. Although th
 First thing first, we must load all libraries needed.
 
 ```{r, warning=FALSE, message=FALSE}
-library('readxl')
-library('rvest')
-library('lubridate')
-library('zoo')
-library('openxlsx')
-library('tidyverse')
+library(readxl)
+library(rvest)
+library(lubridate)
+library(zoo)
+library(openxlsx)
+library(tidyverse)
+library(ggthemes)
 ```
 
 ## Download and Save the Data
@@ -297,7 +298,7 @@ rm(temp_objects)
 
 Yeah! Finally, we've got our prepared file! Let's move on to clean it.
 
-# Data Cleansing {#daclen}
+# Data Pre-processing {#dapre}
 
 First of all, since the file used is big enough, it is recommended to open it in any Spreadsheet application in advance to obtain and explore a quick insight regarding the data.
 
@@ -549,11 +550,11 @@ head(DF)
 
 Alright. All columns have been in appropriate data type. For the next step, let's move on to the next section below.
 
-# Data Transformation {#datran}
+## Data Transformation
 
 As our data is too complicated to infer directly from one table, it will be more convenient if we split it into several subtables: salary for each job title, salary for each sector, salary for each company size, job openings for each sector, job openings for each company size, quick facts, and time series.
 
-## Create a Table "Salary for each job title"
+### Create a Table "Salary for each job title"
 
 This subtable consists of median salary for each job title in a given specific metro area and on a specific date. To create it, we extract some columns from our main data. We're only interested in `Dimension_Type` of `"Job Title"`.
 
@@ -572,15 +573,15 @@ Salary_Jobs$Job_Title <- as.factor(Salary_Jobs$Job_Title)
 levels(Salary_Jobs$Job_Title)
 ```
 
-## Create a Table "Salary for each sector"
+### Create a Table "Salary for each sector"
 
 This subtable consists of median salary for each sector in a given specific metro area and on a specific date. To create it, we extract some columns from our main data. We're only interested in `Dimension_Type` of `"Industry"` and `Measure` of `"Median Base Pay"`.
 
 ```{r}
 Salary_Sectors <- DF %>%
-     filter(Dimension_Type == "Industry" & Measure == "Median Base Pay") %>%
-     select(Metro, Date, Dimension, Value)
-colnames(Salary_Sectors) <- c("Area","Date","Sector", "Salary")
+  filter(Dimension_Type == "Industry" & Measure == "Median Base Pay") %>%
+  select(Metro, Date, Dimension, Value) %>% 
+  rename(Area = Metro, Sector = Dimension, Salary = Value)
 head(Salary_Sectors)
 ```
 
@@ -591,15 +592,15 @@ Salary_Sectors$Sector <- as.factor(Salary_Sectors$Sector)
 levels(Salary_Sectors$Sector)
 ```
 
-## Create a Table "Salary for each company size"
+### Create a Table "Salary for each company size"
 
 This subtable consists of median salary for each company size in a given specific metro area and on a specific date. To create it, we extract some columns from our main data. We're only interested in `Dimension_Type` of `"Company Size"` and `Measure` of `"Median Base Pay"`.
 
 ```{r}
 Salary_CompanySize <- DF %>%
-     filter(Dimension_Type == "Company Size" & Measure == "Median Base Pay") %>%
-     select(Metro, Date, Dimension, Value)
-colnames(Salary_CompanySize) <- c("Area","Date","Company_Size", "Salary")
+  filter(Dimension_Type == "Company Size" & Measure == "Median Base Pay") %>%
+  select(Metro, Date, Dimension, Value) %>% 
+  rename(Area = Metro, Company_Size = Dimension, Salary = Value)
 head(Salary_CompanySize)
 ```
 
@@ -610,15 +611,15 @@ Salary_CompanySize$Company_Size <- as.factor(Salary_CompanySize$Company_Size)
 levels(Salary_CompanySize$Company_Size)
 ```
 
-## Create a Table "Job openings for each sector"
+### Create a Table "Job openings for each sector"
 
 This subtable consists of number of job openings and its YoY for each sector in a given specific metro area and on a specific date. To create it, we extract some columns from our main data. We're only interested in `Dimension_Type` of `"Industry"` and `Measure` of `"Job Openings"`.
 
 ```{r}
 JobOpening_Sectors <- DF %>%
-     filter(Dimension_Type == "Industry" & Measure == "Job Openings") %>%
-     select(Metro, Date, Dimension, Value)
-colnames(JobOpening_Sectors) <- c("Area","Date","Sector", "Openings")
+  filter(Dimension_Type == "Industry" & Measure == "Job Openings") %>%
+  select(Metro, Date, Dimension, Value) %>% 
+  rename(Area = Metro, Sector = Dimension, Openings = Value)
 head(JobOpening_Sectors)
 ```
 
@@ -629,15 +630,15 @@ JobOpening_Sectors$Sector <- as.factor(JobOpening_Sectors$Sector)
 levels(JobOpening_Sectors$Sector)
 ```
 
-## Create a Table "Job openings for each company size"
+### Create a Table "Job openings for each company size"
 
 This subtable consists of number of job openings and its YoY for each company size in a given specific metro area and on a specific date. To create it, we extract some columns from our main data. We're only interested in `Dimension_Type` of `"Company Size"` and `Measure` of `"Job Openings"`.
 
 ```{r}
 JobOpening_CompanySize <- DF %>%
-     filter(Dimension_Type == "Company Size" & Measure == "Job Openings") %>%
-     select(Metro, Date, Dimension, Value)
-colnames(JobOpening_CompanySize) <- c("Area","Date","Company_Size", "Openings")
+  filter(Dimension_Type == "Company Size" & Measure == "Job Openings") %>%
+  select(Metro, Date, Dimension, Value) %>% 
+  rename(Area = Metro, Company_Size = Dimension, Openings = Value)
 head(JobOpening_CompanySize)
 ```
 
@@ -650,19 +651,19 @@ unique(JobOpening_CompanySize$Company_Size)
 Okay. It's still there. Let's remove it and convert the column to factor data type.
 
 ```{r}
-JobOpening_CompanySize <- JobOpening_CompanySize[JobOpening_CompanySize$Company_Size != "Other",]
+JobOpening_CompanySize <- JobOpening_CompanySize %>% filter(Company_Size != "Other")
 JobOpening_CompanySize$Company_Size <- as.factor(JobOpening_CompanySize$Company_Size)
 ```
 
-## Create a Table "Quick facts"
+### Create a Table "Quick facts"
 
 This subtable contains Median Pay and Job Openings data from Glassdoor and US [BLS](https://www.bls.gov/) (Bureau of Labor Statistics) for each area.
 
 ```{r}
 QuickFacts <- DF %>%
-     filter(Dimension_Type == "Quick Facts") %>%
-     select(Metro, Date, Dimension, Value) %>%
-     pivot_wider(names_from = Dimension, values_from = Value)
+  filter(Dimension_Type == "Quick Facts") %>%
+  select(Metro, Date, Dimension, Value) %>%
+  pivot_wider(names_from = Dimension, values_from = Value)
 colnames(QuickFacts) <- c("Area","Date","US_Median_Pay","Metro_Median_Pay",
                           "JobOpenings","US_JobOpenings","Metro_JobOpenings")
 head(QuickFacts)
@@ -673,7 +674,8 @@ NAs identified! This can happen because after we've made the table wider, not ea
 * Quick Facts for US Median Pay
 
 ```{r}
-QuickFacts_USMedianPay <- QuickFacts[!is.na(QuickFacts$US_Median_Pay),1:3]
+QuickFacts_USMedianPay <- QuickFacts %>% filter(!is.na(US_Median_Pay)) %>% 
+  select(1:3)
 is.na(QuickFacts_USMedianPay) %>% colSums()
 head(QuickFacts_USMedianPay)
 ```
@@ -681,7 +683,8 @@ head(QuickFacts_USMedianPay)
 * Quick Facts for Metro Median Pay
 
 ```{r}
-QuickFacts_MetroMedianPay <- QuickFacts[!is.na(QuickFacts$Metro_Median_Pay),c(1,2,4)]
+QuickFacts_MetroMedianPay <- QuickFacts %>% filter(!is.na(Metro_Median_Pay)) %>% 
+  select(c(1,2,4))
 is.na(QuickFacts_MetroMedianPay) %>% colSums()
 head(QuickFacts_MetroMedianPay)
 ```
@@ -689,7 +692,8 @@ head(QuickFacts_MetroMedianPay)
 * Quick Facts for Job Openings
 
 ```{r}
-QuickFacts_JobOpenings <- QuickFacts[!is.na(QuickFacts$JobOpenings),c(1,2,5)]
+QuickFacts_JobOpenings <- QuickFacts %>% filter(!is.na(JobOpenings)) %>% 
+  select(c(1,2,5))
 is.na(QuickFacts_JobOpenings) %>% colSums()
 head(QuickFacts_JobOpenings)
 ```
@@ -697,7 +701,8 @@ head(QuickFacts_JobOpenings)
 * Quick Facts for US Job Openings
 
 ```{r}
-QuickFacts_USJobOpenings <- QuickFacts[!is.na(QuickFacts$US_JobOpenings),c(1,2,6)]
+QuickFacts_USJobOpenings <- QuickFacts %>% filter(!is.na(US_JobOpenings)) %>% 
+  select(c(1,2,6))
 is.na(QuickFacts_USJobOpenings) %>% colSums()
 head(QuickFacts_USJobOpenings)
 ```
@@ -705,12 +710,13 @@ head(QuickFacts_USJobOpenings)
 * Quick Facts for Metro Job Openings
 
 ```{r}
-QuickFacts_MetroJobOpenings <- QuickFacts[!is.na(QuickFacts$Metro_JobOpenings),c(1,2,7)]
+QuickFacts_MetroJobOpenings <- QuickFacts %>% filter(!is.na(Metro_JobOpenings)) %>% 
+  select(c(1,2,7))
 is.na(QuickFacts_MetroJobOpenings) %>% colSums()
 head(QuickFacts_MetroJobOpenings)
 ```
 
-## Create a Table "Time Series"
+### Create a Table "Time Series"
 
 This subtable comes from `Timeseries` column in the main dataframe. It's going to have data of median salary and job openings in certain time interval. It will be more convenient if we split it up into two smaller dataframe.
 
@@ -795,7 +801,7 @@ Q1_func <- function(year) {
   }
   Q1_ans <- as.data.frame(cbind(Area = areas,
                                 Job_Title = maxTitle_eachArea, 
-                                Salary = maxPay_eachArea))
+                                Salary = as.numeric(maxPay_eachArea)))
   return(Q1_ans)
 }
 ```
@@ -806,16 +812,72 @@ By using above function, we can find highest paid job for each area every year.
   
 ```{r}
 Q1_ans2018 <- Q1_func(2018)
-Q1_ans2018 <- Q1_ans2018[order(Q1_ans2018$Salary, decreasing = T),]
-Q1_ans2018[c(1,2,3,4,5,7,8,9,10,11),]
+Q1_ans2018 <- Q1_ans2018 %>% arrange(desc(Salary))
+Q1_ans2018_subset <- Q1_ans2018[c(1,2,3,4,5,7,8,9,10,11),]
+Q1_ans2018_subset$Salary <- as.numeric(as.character(Q1_ans2018_subset$Salary))
+```
+
+Okay! We've got the data for 2018. Let's plot it!
+
+```{r}
+ggplot(Q1_ans2018_subset, aes(x = reorder(Area, Salary),
+                              y = Salary)) +
+  geom_col(aes(fill = Job_Title)) +
+  coord_flip() +
+  labs(title = "The Highest Paid Jobs in the US in 2018",
+       x = "Metropolitan Area",
+       y = "Annual Salary in USD",
+       fill = "Job Title:") +
+  scale_fill_brewer(palette = "Set2") +
+  theme_tufte()
 ```
 
   + The highest paid job in 2019
 
+Do the same for the 2019 data.
+
 ```{r}
 Q1_ans2019 <- Q1_func(2019)
-Q1_ans2019 <- Q1_ans2019[order(Q1_ans2019$Salary, decreasing = T),]
-Q1_ans2019[c(1,2,3,4,5,7,8,9,10,11),]
+Q1_ans2019 <- Q1_ans2019 %>% arrange(desc(Salary))
+Q1_ans2019_subset <- Q1_ans2019[c(1,2,3,4,5,7,8,9,10,11),]
+Q1_ans2019_subset$Salary <- as.numeric(as.character(Q1_ans2019_subset$Salary))
+```
+
+```{r}
+ggplot(Q1_ans2019_subset, aes(x = reorder(Area, Salary),
+                              y = Salary)) +
+  geom_col(aes(fill = Job_Title)) +
+  coord_flip() +
+  labs(title = "The Highest Paid Jobs in the US in 2019",
+       x = "Metropolitan Area",
+       y = "Annual Salary in USD",
+       fill = "Job Title:") +
+  scale_fill_brewer(palette = "Set2") +
+  theme_tufte()
+```
+
+Nice plots. In order to make the reader easier to compare 2018 and 2019, it will be better if we put both plots side by side. Then, let's combine both data first.
+
+```{r}
+Year <- c(rep(2018, 10), rep(2019, 10))
+Q1_ans_subset <- rbind(Q1_ans2018_subset, Q1_ans2019_subset)
+Q1_ans_subset <- cbind(Q1_ans_subset, Year)
+```
+
+Alright! The data are ready, and let's plot again.
+
+```{r}
+ggplot(Q1_ans_subset, aes(x = reorder(Area, Salary),
+                              y = Salary)) +
+  geom_col(aes(fill = Job_Title)) +
+  coord_flip() +
+  labs(title = "The Highest Paid Jobs in the US in 2018 & 2019",
+       x = "Metropolitan Area",
+       y = "Annual Salary in USD",
+       fill = "Job Title:") +
+  scale_fill_brewer(palette = "Set2") +
+  theme_clean() +
+  facet_wrap(~Year)
 ```
 
 Looking at two tables above, Attorney and Pharmacist mostly lead all jobs' salary.
@@ -840,9 +902,10 @@ Q2_func <- function(year) {
 }
 
 Q2_ans2018 <- Q2_func(2018)
-Q2_ans2018 <- Q2_ans2018[order(Q2_ans2018$Salary, decreasing = T),]
+Q2_ans2018 <- Q2_ans2018 %>% arrange(desc(Salary))
+
 Q2_ans2019 <- Q2_func(2019)
-Q2_ans2019 <- Q2_ans2019[order(Q2_ans2019$Salary, decreasing = T),]
+Q2_ans2019 <- Q2_ans2019 %>% arrange(desc(Salary))
 
 Q2_ans <- rbind(head(Q2_ans2018, 5), head(Q2_ans2019, 5))
 Q2_ans
@@ -855,10 +918,10 @@ From above table, we can see that top 4 sectors in 2018 and 2019 are the same. T
 In order to answer this question, we need `Salary_CompanySize` dataframe. Afterwards, we filter the data by San Francisco and New York City areas and company sizes of more than 5000 employees and equal or less than 200.
 
 ```{r}
-SF_5000more <- Salary_CompanySize[Salary_CompanySize$Area == "San Francisco" & Salary_CompanySize$Company_Size == "5000+",]
+SF_5000more <- Salary_CompanySize %>% filter(Area == "San Francisco" & Company_Size == "5000+")
+NYC_startup <- Salary_CompanySize %>% 
+  filter(Area == "New York City" & (Company_Size == "51-20" | Company_Size == "<51"))
 head(SF_5000more)
-
-NYC_startup <- Salary_CompanySize[Salary_CompanySize$Area == "New York City" & (Salary_CompanySize$Company_Size == "51-200" | Salary_CompanySize$Company_Size == "<51"),]
 head(NYC_startup)
 ```
 
