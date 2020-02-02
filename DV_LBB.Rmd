@@ -132,14 +132,38 @@ airports[is.na(airports$tzone), "tzone"] <- c("America/New_York","America/New_Yo
 is.na(flights) %>% colSums()
 ```
 
+Oh geez! We have a lot of NAs. Let's see them in more detailed.
+
 ```{r}
-table(airports$tzone)
+flights %>% filter(is.na(dep_time) | is.na(dep_delay) | is.na(arr_time) | is.na(arr_delay) | is.na(tailnum) | is.na(air_time))
 ```
 
-is.na(flights) %>% colSums()
+Replace NA values in `dep_delay` with median of the non-NA values.
+
+```{r}
+quantile(x = flights$dep_delay, na.rm = T)
+```
+
+Replace NA values in `arr_delay` with median of the non-NA values.
+
+```{r}
+quantile(x = flights$arr_delay, na.rm = T)
+```
+
+```{r}
+sprintf(fmt = "%02d:%02d", 8,30)
+```
+
+``` {r}
 is.na(planes) %>% colSums()
+```
+
+``` {r}
 is.na(weather) %>% colSums()
 ```
+
+## Change Data Type
+
 
 
 # Analysis
@@ -148,6 +172,15 @@ is.na(weather) %>% colSums()
 
 ## Compare airlines' flights at each airport!
 
+In order to answer this question, we need `arlines` and `flights` dataframe. Afterwards, we filter the data by its each year and each area. Next, for all rows filtered, calculate mean of salary for each job title in 12 months for each year, and then find the max salary from all averaged salary of job titles. The codes to perform these steps can be find below. Firstly, I create a function.
+
+```{r}
+head(airlines)
+head(airports)
+head(flights)
+head(planes)
+head(weather)
+```
 
 
 ## Find the relationship between delays and weather conditions!
