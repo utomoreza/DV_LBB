@@ -24,7 +24,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Background
 
-This article aims to meet the second LBB (Learn by Building) assignment from Algoritma, i.e. [Data Visualization](https://algorit.ma/course/data-visualization/) course. This article is based on [P4DS LBB](https://github.com/utomoreza/P4DS_LBB) article. However, there are some improvements which are as follows:
+This article aims to meet the second LBB (Learn by Building) assignment from Algoritma, i.e. [Data Visualization](https://algorit.ma/course/data-visualization/) course. This article is based on [P4DS LBB](https://github.com/utomoreza/P4DS_LBB) question22222222question020/00//0article. However, there are some improvements which are as follows:
 
 * The usage of `dplyr` package is emphasized.
 * More research questions are provided.
@@ -107,6 +107,7 @@ library(openxlsx)
 library(tidyverse)
 library(ggthemes)
 library(scales)
+library(plotly)
 ```
 
 ## Download and Save the Data
@@ -821,7 +822,7 @@ Q1_ans2018_subset$Salary <- as.numeric(as.character(Q1_ans2018_subset$Salary))
 Okay! We've got the data for 2018. Let's plot it!
 
 ```{r}
-ggplot(Q1_ans2018_subset, aes(x = reorder(Area, Salary),
+plot1a <- ggplot(Q1_ans2018_subset, aes(x = reorder(Area, Salary),
                               y = Salary)) +
   geom_col(aes(fill = Job_Title)) +
   coord_flip() +
@@ -832,7 +833,13 @@ ggplot(Q1_ans2018_subset, aes(x = reorder(Area, Salary),
   scale_fill_brewer(palette = "Set2") +
   scale_y_continuous(labels = comma) +
   theme_tufte()
+plot1a
 ```
+
+```{r}
+ggplotly(plot1a)
+```
+
 
   + The highest paid job in 2019
 
@@ -846,7 +853,7 @@ Q1_ans2019_subset$Salary <- as.numeric(as.character(Q1_ans2019_subset$Salary))
 ```
 
 ```{r}
-ggplot(Q1_ans2019_subset, aes(x = reorder(Area, Salary),
+plot1b <- ggplot(Q1_ans2019_subset, aes(x = reorder(Area, Salary),
                               y = Salary)) +
   geom_col(aes(fill = Job_Title)) +
   coord_flip() +
@@ -857,6 +864,11 @@ ggplot(Q1_ans2019_subset, aes(x = reorder(Area, Salary),
   scale_fill_brewer(palette = "Set2") +
   scale_y_continuous(labels = comma) +
   theme_tufte()
+plot1b
+```
+
+```{r}
+ggplotly(plot1b)
 ```
 
 Nice plots. In order to make the reader easier to compare 2018 and 2019, it will be better if we put both plots side by side. Then, let's combine both data first.
@@ -870,7 +882,7 @@ Q1_ans_subset <- cbind(Q1_ans_subset, Year)
 Alright! The data are ready, and let's plot again.
 
 ```{r}
-ggplot(Q1_ans_subset, aes(x = reorder(Area, Salary),
+plot1c <- ggplot(Q1_ans_subset, aes(x = reorder(Area, Salary),
                               y = Salary)) +
   geom_col(aes(fill = Job_Title)) +
   coord_flip() +
@@ -882,9 +894,14 @@ ggplot(Q1_ans_subset, aes(x = reorder(Area, Salary),
   scale_y_continuous(labels = comma) +
   theme_clean() +
   facet_wrap(~Year)
+plot1c
 ```
 
-Looking at two tables above, Attorney and Pharmacist mostly lead all jobs' salary.
+```{r}
+ggplotly(plot1c)
+```
+
+Looking at figures above, Attorney and Pharmacist mostly lead all jobs' salary.
 
 ## Which top 5 sectors do pay salary the most in Boston every year?
 
@@ -915,7 +932,7 @@ Q2_ans <- rbind(head(Q2_ans2018, 5), head(Q2_ans2019, 5))
 ```
 
 ```{r}
-ggplot(Q2_ans, aes(x = reorder(Sector, Salary),
+plot2 <- ggplot(Q2_ans, aes(x = reorder(Sector, Salary),
                               y = Salary)) +
   geom_col(aes(fill = Sector), show.legend = F) +
   coord_flip() +
@@ -927,9 +944,14 @@ ggplot(Q2_ans, aes(x = reorder(Sector, Salary),
   scale_y_continuous(labels = comma) +
   facet_grid(vars(Year), scales = "free") +
   geom_label(aes(y = Salary, label = Salary), label.size = 0.15, nudge_y = -5000)
+plot2
 ```
 
-From above table, we can see that top 4 sectors in 2018 and 2019 are the same. Those sectors stay remained in big four for 2 years. The second highest sector, Biotech and Pharmaceuticals, strengthens the relationship between the first and the second questions that Pharmacists, as one of highest paid job, perhaps also work at Biotech and Pharmaceuticals sector which is also one of sectors with highest salary.
+```{r}
+ggplotly(plot2)
+```
+
+From above figures, we can see that top 4 sectors in 2018 and 2019 are the same. Those sectors stay remained in big four for 2 years. The second highest sector, Biotech and Pharmaceuticals, strengthens the relationship between the first and the second questions that Pharmacists, as one of highest paid job, perhaps also work at Biotech and Pharmaceuticals sector which is also one of sectors with highest salary.
 
 ## Is it true that a company with more than 5000 employees in San Francisco pays its employees' salary higher than a startup (a company with employees equal or less than 200) in NYC? Show the data in every year!
 
@@ -952,7 +974,7 @@ NYC_startup_agg <- NYC_startup %>% select(Area, Date, Salary) %>%
   ungroup() %>% 
   rename(Salary = Mean_Salary)
 
-ggplot(SF_5000more, aes(x = Date,
+plot3 <- ggplot(SF_5000more, aes(x = Date,
                         y = Salary)) +
   geom_jitter(aes(color = Area)) +
   geom_jitter(data = NYC_startup_agg, aes(color = Area)) +
@@ -965,10 +987,14 @@ ggplot(SF_5000more, aes(x = Date,
   theme(axis.text.x = element_text(size = 8), axis.title.x = element_text(size = 11),
         axis.text.y = element_text(size = 8), axis.title.y = element_text(size = 11),
         plot.title = element_text(size = 14, face = "bold", color = "darkgreen", hjust = 0.7))
-  
+plot3
 ```
 
-By looking at the figure above, it is proven that for 2018 and 2019, big companies in San Francisco always pay their employees higher than startups in New York City pay. Therefore, there is an advice for this case:
+```{r}
+ggplotly(plot3)
+```
+
+By looking at the figures above, it is proven that for 2018 and 2019, big companies in San Francisco always pay their employees higher than startups in New York City pay. Therefore, there is an advice for this case:
 
 ```
 If you were to work in the US and choose either to work in San Francisco or New York City, it is recommended to apply for a job at a big company. It produces more money for you!
@@ -981,7 +1007,7 @@ In order to answer this question, we need `TimeSeries_Salary` and `TimeSeries_Jo
 ```{r}
 SA_withoutNational <- TimeSeries_Salary %>% filter(Metro != "National")
 
-ggplot(SA_withoutNational, aes(x = Metro,
+plot4a <- ggplot(SA_withoutNational, aes(x = Metro,
                y = Salary)) +
   geom_boxplot(aes(fill = Metro), show.legend = F) +
   geom_jitter(aes(color = as.factor(year(Date))), alpha = 0.6) +
@@ -998,12 +1024,17 @@ ggplot(SA_withoutNational, aes(x = Metro,
         axis.title.y = element_text(size = 10),
         axis.text.x = element_text(size = 8),
         axis.text.y = element_text(size = 8))
+plot4a
+```
+
+```{r}
+ggplotly(plot4a)
 ```
 
 ```{r}
 JO_withoutNational <- TimeSeries_JobOpenings %>% filter(Metro != "National")
 
-ggplot(JO_withoutNational, aes(x = Metro,
+plot4b <- ggplot(JO_withoutNational, aes(x = Metro,
                y = Job_Openings)) +
   geom_boxplot(aes(fill = Metro), show.legend = F) +
   geom_jitter(aes(color = as.factor(year(Date))), alpha = 0.3) +
@@ -1020,6 +1051,11 @@ ggplot(JO_withoutNational, aes(x = Metro,
         axis.title.y = element_text(size = 10),
         axis.text.x = element_text(size = 8),
         axis.text.y = element_text(size = 8))
+plot4b
+```
+
+```{r}
+ggplotly(plot4b)
 ```
 
 ```{r}
@@ -1042,27 +1078,61 @@ SA_JO <- cbind(SA, JO$Mean_JobOpenings) %>%
 ```
 
 ```{r}
-ggplot(SA_JO, aes(x = Salary,
+plot4c <- ggplot(SA_JO, aes(x = Salary,
                   y = Job_Openings)) +
-  geom_jitter()
+  geom_jitter(color = "darkgreen") +
+  geom_smooth(method = "auto") +
+  scale_x_continuous(labels = comma) +
+  scale_y_continuous(labels = comma) +
+  labs(title = "Salary vs Job Openings from 2014 to 2019",
+       x = "Salary in USD",
+       y = "Number of Job Openings") +
+  theme_economist() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+        axis.title.x = element_text(size = 10),
+        axis.title.y = element_text(size = 10),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_text(size = 8))
+plot4c
 ```
 
+```{r}
+ggplotly(plot4c)
+```
 
 ``` {r}
-options(scipen = 999)
-plot(x = SA$Mean_Salary, y = JO$Mean_JobOpenings,
-     main = "Relationship between Salary & Job Openings in the US",
-     xlab = "Salary in USD",
-     ylab = "Job Openings",
-     panel.first = grid())
-
 cor_SA_JO <- round(cor(SA$Mean_Salary, JO$Mean_JobOpenings), 3)
 paste0("The corelation value between Salary & Job Openings in the US: ", cor_SA_JO)
 ```
 
-As seen in the figure above, almost there is a little relationship between salary and job openings. We could say that in majority, small number (less than 1 million) of job openings spreads somewhat evenly on the salary. High density of the figure can be seen between ranges x: 50K-65K and y:0-1M. Meanwhile, there are some outliers in which small number of salaries is open in a large number of job openings.
+As seen in the figures above, almost there is a little relationship between salary and job openings. We could say that in majority, small number (less than 1 million) of job openings spreads somewhat evenly on the salary. High density of the figure can be seen between ranges x: 50K-65K and y:0-1M. Meanwhile, there are some outliers in which small number of salaries is open in a large number of job openings.
 
 In addition to analyze the relationship by viewing on the figure, we can use correlation formula to examine both salary and job openings. We also can see below the figure above that the correlation value of such relationship is `-0.363`. This means that both have a small negative relationship which means when the salary goes up, the job openings somewhat goes down, and vice versa.
+
+## Compare salaries of each area from Metro Median Pay and US Median Pay from Quick Facts!
+
+```{r}
+Q5_DF1 <- QuickFacts_MetroMedianPay %>% mutate(Month = month(Date, label = T),
+                                     Year = year(Date)) %>% 
+  group_by(Area, Month, Year) %>% 
+  summarise(Mean_MetroMedianPay = mean(Metro_Median_Pay))
+Q5_DF2 <- QuickFacts_USMedianPay %>% mutate(Month = month(Date, label = T),
+                                     Year = year(Date)) %>% 
+  group_by(Area, Month, Year) %>% 
+  summarise(Mean_USMedianPay = mean(US_Median_Pay))
+```
+
+## Show distributions of company size's salary and job openings!
+
+
+
+## Show distributions of sectors' salary and job openings!
+
+
+
+## Show distributions of salary and job openings from Time Series!
+
+
 
 # Conclusions {#concl}
 
