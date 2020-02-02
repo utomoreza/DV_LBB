@@ -908,7 +908,22 @@ Q2_ans2019 <- Q2_func(2019)
 Q2_ans2019 <- Q2_ans2019 %>% arrange(desc(Salary))
 
 Q2_ans <- rbind(head(Q2_ans2018, 5), head(Q2_ans2019, 5))
-Q2_ans
+```
+
+```{r}
+ggplot(Q2_ans, aes(x = reorder(Sector, Salary),
+                              y = Salary)) +
+  geom_col(aes(fill = Sector), show.legend = F) +
+  coord_flip() +
+  labs(title = "Top 5 Sectors with Highest Salary in the US",
+       x = "Sector",
+       y = "Annual Salary in USD") +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal() +
+  # theme(plot.title = element_text(hjust = 0)) +
+  # facet_wrap(~Year) +
+  facet_grid(vars(Year), scales = "free") +
+  geom_label(aes(y = Salary, label = Salary), label.size = 0.15, nudge_y = -5000)
 ```
 
 From above table, we can see that top 4 sectors in 2018 and 2019 are the same. Those sectors stay remained in big four for 2 years. The second highest sector, Biotech and Pharmaceuticals, strengthens the relationship between the first and the second questions that Pharmacists, as one of highest paid job, perhaps also work at Biotech and Pharmaceuticals sector which is also one of sectors with highest salary.
