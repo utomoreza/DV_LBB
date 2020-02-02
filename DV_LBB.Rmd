@@ -1,30 +1,177 @@
 ---
-title: "DV_LBB"
-author: "utomoreza"
+title: "Air Traffic in New York City"
+author: "Reza Dwi Utomo @utomoreza"
 date: "02/02/2020"
-output: html_document
+output:
+  html_document:
+    highlight: zenburn
+    number_sections: yes
+    theme: flatly
+    toc: yes
+    toc_depth: 2
+    toc_float:
+      collapsed: yes
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+![](https://baronsbus.com/wp-content/uploads/2019/11/barons-bus-airports-new-york-skyline-lga-ewr-jfk.jpg)
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+# Introduction
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+## Background
 
-```{r cars}
-summary(cars)
+This article aims to meet the second LBB (Learn by Building) assignment from Algoritma, i.e. [Data Visualization](https://algorit.ma/course/data-visualization/) course. In this article, you could expect to find the following sections:
+
+* Introduction of the article can be found in here [Introduction](#intro)
+* More detailed explanation of the data is in [Dataset](#daset)
+* How to prepare the data can be read in [Preparation](#prep)
+* Steps to clean and pre-process the data is in [Data Pre-processing](#dapre)
+* Discussion about solving the pre-defined problems is described in [Analysis](#analys)
+* Conclusions of the article can be read in [Conclusions](#concl)
+
+## Objectives
+
+By arranging this article, I'm going to tackle with these problems as follows:
+
+* Compare airlines' flights at each airport!
+* Find the relationship between delays and weather conditions!
+* Plot top 5 plane manufacturers causing delays the most!
+* Show distribution of each airlines' fleets year manufactured!
+* Show distribution of air times from three airports!
+* Compare number of traffics among three airports!
+* Create a map of the flights from NYC airports to other airports!
+
+# Dataset
+
+The dataset used comes from a built-in R package internally, i.e. `nycflights13`. This package consist of 5 dataframes as follows:
+
+1. `airlines`: Look up airline names from their carrier codes.
+2. `airports`: Useful metadata about airports.
+3. `flights`: On-time data for all flights that departed NYC (i.e. JFK, LGA or EWR) in 2013.
+4. `planes`: Plane metadata for all plane tailnumbers found in the FAA aircraft registry.   American Airways(AA) and Envoy Air (MQ) report fleet numbers rather than tail numbers so can’t be matched.
+5. `weather` Hourly meterological data for LGA, JFK and EWR.
+
+For more information regarding metadata of the dataset, you can read more here [Metadata](https://cran.r-project.org/web/packages/nycflights13/nycflights13.pdf).
+
+# Preparation
+
+Load all necessary packages.
+
+```{r}
+library(tidyverse)
+library(lubridate)
 ```
 
-## Including Plots
+Save the dataframes from `nycflights13` to dataframe objects in `Global Environment`.
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+airlines <- as.data.frame(nycflights13::airlines)
+airports <- as.data.frame(nycflights13::airports)
+flights <- as.data.frame(nycflights13::flights)
+planes <- as.data.frame(nycflights13::planes)
+weather <- as.data.frame(nycflights13::weather)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Let's take a quick look at all dataframes.
+
+```{r}
+head(airlines)
+head(airports)
+head(flights)
+head(planes)
+head(weather)
+```
+
+Alright. Our data ready for the next section.
+
+# Data Pre-processing
+
+## Remove NA Values
+
+Firstly, let's check whether NA exist in the tables.
+
+* NA Values in `airport`
+
+```{r}
+is.na(airlines) %>% colSums()
+```
+
+Good! All clean.
+
+* NA Values in `airport`
+
+```{r}
+is.na(airports) %>% colSums()
+```
+
+Well, there're only three NAs. Let's see them deeper before we erase them.
+
+```{r}
+airports %>% filter(is.na(tzone))
+```
+
+As only three NAs exist, I think that's not a big deal if we search on Google to find their time zone. So, the results after performing Google search are as follows:
+
++ `"Dillant Hopkins Airport"`: its time zone is `"America/New_York"`
++ `"Mount Pleasant Regional-Faison Field"`: its time zone is `"America/New_York"`
++ `"Yakutat"`: its time zone is `"America/Anchorage"`
+
+So, let's write down the updates in `tzone` column.
+
+```{r}
+airports[is.na(airports$tzone), "tzone"] <- c("America/New_York","America/New_York","America/Anchorage")
+```
+
+* NA Values in `flights`
+
+```{r}
+is.na(flights) %>% colSums()
+```
+
+```{r}
+table(airports$tzone)
+```
+
+is.na(flights) %>% colSums()
+is.na(planes) %>% colSums()
+is.na(weather) %>% colSums()
+```
+
+
+# Analysis
+
+
+
+## Compare airlines' flights at each airport!
+
+
+
+## Find the relationship between delays and weather conditions!
+
+
+
+## Plot top 5 plane manufacturers causing delays the most!
+
+
+
+## Show distribution of each airlines' fleets year manufactured!
+
+
+
+## Show distribution of air times from three airports!
+
+
+
+## Compare number of traffics among three airports!
+
+
+
+## Create a map of the flights from NYC airports to other airports!
+
+
+
+# Conclusions
