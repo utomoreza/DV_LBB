@@ -1,0 +1,12 @@
+Things to remind:
+
+Dalam pembuatan report, jangan lupa untuk meliputi hal-hal berikut:
+- Tahapan data pre-processing yang dilakukan sebelum membuat visualisasi
+- Insight yang ingin disampaikan
+- Kesesuaian jenis plot yang digunakan
+- Estetika visualisasi yang ditampilkan:
+1. Penggunaan warna (fill/color) dan penyesuaian tema (theme)
+2. Pemberian label yang sesuai dengan informasi:
+- Label dari sumbu x / y
+- Title/Subtitle
+- Legend, etc.
