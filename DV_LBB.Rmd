@@ -106,6 +106,7 @@ library(zoo)
 library(openxlsx)
 library(tidyverse)
 library(ggthemes)
+library(scales)
 ```
 
 ## Download and Save the Data
@@ -829,6 +830,7 @@ ggplot(Q1_ans2018_subset, aes(x = reorder(Area, Salary),
        y = "Annual Salary in USD",
        fill = "Job Title:") +
   scale_fill_brewer(palette = "Set2") +
+  scale_y_continuous(labels = comma) +
   theme_tufte()
 ```
 
@@ -853,6 +855,7 @@ ggplot(Q1_ans2019_subset, aes(x = reorder(Area, Salary),
        y = "Annual Salary in USD",
        fill = "Job Title:") +
   scale_fill_brewer(palette = "Set2") +
+  scale_y_continuous(labels = comma) +
   theme_tufte()
 ```
 
@@ -876,6 +879,7 @@ ggplot(Q1_ans_subset, aes(x = reorder(Area, Salary),
        y = "Annual Salary in USD",
        fill = "Job Title:") +
   scale_fill_brewer(palette = "Set2") +
+  scale_y_continuous(labels = comma) +
   theme_clean() +
   facet_wrap(~Year)
 ```
@@ -920,8 +924,7 @@ ggplot(Q2_ans, aes(x = reorder(Sector, Salary),
        y = "Annual Salary in USD") +
   scale_fill_brewer(palette = "Set2") +
   theme_minimal() +
-  # theme(plot.title = element_text(hjust = 0)) +
-  # facet_wrap(~Year) +
+  scale_y_continuous(labels = comma) +
   facet_grid(vars(Year), scales = "free") +
   geom_label(aes(y = Salary, label = Salary), label.size = 0.15, nudge_y = -5000)
 ```
@@ -976,6 +979,50 @@ If you were to work in the US and choose either to work in San Francisco or New 
 In order to answer this question, we need `TimeSeries_Salary` and `TimeSeries_JobOpenings` dataframes. Afterwards, we group them in their months and years, make an average of salary and job openings for each group, and then sort them by month and year. After we've got the new dataframes, we can plot them and calculate the correlation.
 
 ```{r}
+SA_withoutNational <- TimeSeries_Salary %>% filter(Metro != "National")
+
+ggplot(SA_withoutNational, aes(x = Metro,
+               y = Salary)) +
+  geom_boxplot(aes(fill = Metro), show.legend = F) +
+  geom_jitter(aes(color = as.factor(year(Date))), alpha = 0.6) +
+  coord_flip() +
+  labs(title = "Distribution of Salary from 2014 to 2019",
+       x = "Area",
+       y = "Salary in USD",
+       color = "Year") +
+  scale_color_calc() +
+  scale_y_continuous(labels = comma) +
+  theme_calc() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+        axis.title.x = element_text(size = 10),
+        axis.title.y = element_text(size = 10),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_text(size = 8))
+```
+
+```{r}
+JO_withoutNational <- TimeSeries_JobOpenings %>% filter(Metro != "National")
+
+ggplot(JO_withoutNational, aes(x = Metro,
+               y = Job_Openings)) +
+  geom_boxplot(aes(fill = Metro), show.legend = F) +
+  geom_jitter(aes(color = as.factor(year(Date))), alpha = 0.3) +
+  coord_flip() +
+  labs(title = "Distribution of Job Openings from 2014 to 2019",
+       x = "Area",
+       y = "Number of Job Openings",
+       color = "Year") +
+  scale_color_calc() +
+  scale_y_continuous(labels = comma) +
+  theme_calc() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+        axis.title.x = element_text(size = 10),
+        axis.title.y = element_text(size = 10),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_text(size = 8))
+```
+
+```{r}
 SA <- TimeSeries_Salary %>% 
   mutate(Month = month(Date, label = T), Year = year(Date)) %>% 
   group_by(Metro, Month, Year) %>% 
@@ -990,6 +1037,18 @@ JO <- TimeSeries_JobOpenings %>%
   ungroup() %>%
   arrange(Year)
 
+SA_JO <- cbind(SA, JO$Mean_JobOpenings) %>% 
+  rename(Salary = Mean_Salary, Job_Openings = "JO$Mean_JobOpenings")
+```
+
+```{r}
+ggplot(SA_JO, aes(x = Salary,
+                  y = Job_Openings)) +
+  geom_jitter()
+```
+
+
+``` {r}
 options(scipen = 999)
 plot(x = SA$Mean_Salary, y = JO$Mean_JobOpenings,
      main = "Relationship between Salary & Job Openings in the US",
