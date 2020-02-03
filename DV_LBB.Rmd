@@ -24,7 +24,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Background
 
-This article aims to meet the second LBB (Learn by Building) assignment from Algoritma, i.e. [Data Visualization](https://algorit.ma/course/data-visualization/) course. This article is based on [P4DS LBB](https://github.com/utomoreza/P4DS_LBB) question22222222question020/00//0article. However, there are some improvements which are as follows:
+This article aims to meet the second LBB (Learn by Building) assignment from Algoritma, i.e. [Data Visualization](https://algorit.ma/course/data-visualization/) course. This article is based on [P4DS LBB](https://github.com/utomoreza/P4DS_LBB) article. However, there are some improvements which are as follows:
 
 * The usage of `dplyr` package is emphasized.
 * More research questions are provided.
