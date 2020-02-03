@@ -836,10 +836,11 @@ plot1a <- ggplot(Q1_ans2018_subset, aes(x = reorder(Area, Salary),
 plot1a
 ```
 
+And let's see the plot in an interactive way.
+
 ```{r}
 ggplotly(plot1a)
 ```
-
 
   + The highest paid job in 2019
 
@@ -866,6 +867,8 @@ plot1b <- ggplot(Q1_ans2019_subset, aes(x = reorder(Area, Salary),
   theme_tufte()
 plot1b
 ```
+
+And let's see the plot in an interactive way.
 
 ```{r}
 ggplotly(plot1b)
@@ -896,6 +899,8 @@ plot1c <- ggplot(Q1_ans_subset, aes(x = reorder(Area, Salary),
   facet_wrap(~Year)
 plot1c
 ```
+
+And let's see the plot in an interactive way.
 
 ```{r}
 ggplotly(plot1c)
@@ -931,6 +936,8 @@ Q2_ans2019 <- Q2_ans2019 %>% arrange(desc(Salary))
 Q2_ans <- rbind(head(Q2_ans2018, 5), head(Q2_ans2019, 5))
 ```
 
+We've got the data, and now let's plot it.
+
 ```{r}
 plot2 <- ggplot(Q2_ans, aes(x = reorder(Sector, Salary),
                               y = Salary)) +
@@ -946,6 +953,8 @@ plot2 <- ggplot(Q2_ans, aes(x = reorder(Sector, Salary),
   geom_label(aes(y = Salary, label = Salary), label.size = 0.15, nudge_y = -5000)
 plot2
 ```
+
+And let's see the plot in an interactive way.
 
 ```{r}
 ggplotly(plot2)
@@ -990,6 +999,8 @@ plot3 <- ggplot(SF_5000more, aes(x = Date,
 plot3
 ```
 
+And let's see the plot in an interactive way.
+
 ```{r}
 ggplotly(plot3)
 ```
@@ -1002,7 +1013,9 @@ If you were to work in the US and choose either to work in San Francisco or New 
 
 ## What is the relationship between salary and job openings in the US?
 
-In order to answer this question, we need `TimeSeries_Salary` and `TimeSeries_JobOpenings` dataframes. Afterwards, we group them in their months and years, make an average of salary and job openings for each group, and then sort them by month and year. After we've got the new dataframes, we can plot them and calculate the correlation.
+In order to answer this question, we need `TimeSeries_Salary` and `TimeSeries_JobOpenings` dataframes. First of all, let's see the distributions of each dataframe.
+
+* Time Series Salary
 
 ```{r}
 SA_withoutNational <- TimeSeries_Salary %>% filter(Metro != "National")
@@ -1027,9 +1040,15 @@ plot4a <- ggplot(SA_withoutNational, aes(x = Metro,
 plot4a
 ```
 
+And now let's see the plot in an interactive way.
+
 ```{r}
 ggplotly(plot4a)
 ```
+
+From two figures above, we can see that the salary gradually increases every year, and this occurs evely in each area. With its distribution, San Francisco leads as the area with the highest salary, whereas Atlanta remains the lowest.
+
+* Time Series Job Openings
 
 ```{r}
 JO_withoutNational <- TimeSeries_JobOpenings %>% filter(Metro != "National")
@@ -1037,7 +1056,7 @@ JO_withoutNational <- TimeSeries_JobOpenings %>% filter(Metro != "National")
 plot4b <- ggplot(JO_withoutNational, aes(x = Metro,
                y = Job_Openings)) +
   geom_boxplot(aes(fill = Metro), show.legend = F) +
-  geom_jitter(aes(color = as.factor(year(Date))), alpha = 0.3) +
+  geom_jitter(aes(color = as.factor(year(Date))), alpha = 0.5) +
   coord_flip() +
   labs(title = "Distribution of Job Openings from 2014 to 2019",
        x = "Area",
@@ -1054,9 +1073,15 @@ plot4b <- ggplot(JO_withoutNational, aes(x = Metro,
 plot4b
 ```
 
+And now let's see the plot in an interactive way.
+
 ```{r}
 ggplotly(plot4b)
 ```
+
+From two figures above, we can see that the job openings gradually tend to grow every year, and this occurs evely in each area. With its distribution, New York City leads as the area with the highest salary (and perhaps the longest distribution), whereas the lowest ones fall on several areas. e.g. Atlanta and Philadelphia.
+
+Afterwards, we group each dataframe in their months and years, make an average of salary and job openings for each group, and then sort them by month and year. After we've got the new dataframes, we can plot them and calculate the correlation.
 
 ```{r}
 SA <- TimeSeries_Salary %>% 
@@ -1096,9 +1121,13 @@ plot4c <- ggplot(SA_JO, aes(x = Salary,
 plot4c
 ```
 
+And now let's see the plot in an interactive way.
+
 ```{r}
 ggplotly(plot4c)
 ```
+
+And then calculate the correlation.
 
 ``` {r}
 cor_SA_JO <- round(cor(SA$Mean_Salary, JO$Mean_JobOpenings), 3)
@@ -1112,18 +1141,83 @@ In addition to analyze the relationship by viewing on the figure, we can use cor
 ## Compare salaries of each area from Metro Median Pay and US Median Pay from Quick Facts!
 
 ```{r}
-Q5_DF1 <- QuickFacts_MetroMedianPay %>% mutate(Month = month(Date, label = T),
-                                     Year = year(Date)) %>% 
-  group_by(Area, Month, Year) %>% 
-  summarise(Mean_MetroMedianPay = mean(Metro_Median_Pay))
-Q5_DF2 <- QuickFacts_USMedianPay %>% mutate(Month = month(Date, label = T),
-                                     Year = year(Date)) %>% 
-  group_by(Area, Month, Year) %>% 
-  summarise(Mean_USMedianPay = mean(US_Median_Pay))
+Q5_DF1 <- QuickFacts_MetroMedianPay %>% 
+  group_by(Area, year(Date)) %>% 
+  summarise(Mean_MetroMedianPay = round(mean(Metro_Median_Pay))) %>% 
+  ungroup() %>% 
+  rename(Year = "year(Date)", "Metro Median Pay" = Mean_MetroMedianPay)
+Q5_DF2 <- QuickFacts_USMedianPay %>% 
+  group_by(Area, year(Date)) %>% 
+  summarise(Mean_USMedianPay = round(mean(US_Median_Pay))) %>% 
+  ungroup() %>% 
+  filter(Area != "National") %>% 
+  rename(Year = "year(Date)", US_Median_Pay = Mean_USMedianPay)
+Q5_DF <- cbind(Q5_DF1, Q5_DF2$US_Median_Pay) %>% 
+  rename("US Median Pay" = "Q5_DF2$US_Median_Pay")
+Q5_DF_long <- Q5_DF %>% pivot_longer(cols = c("Metro Median Pay", "US Median Pay"), names_to = "MedianPay_Type", values_to = "Value")
+```
+
+```{r}
+plot5 <- ggplot(Q5_DF_long, aes(x = reorder(Area, Value),
+                              y = Value,
+                              fill = MedianPay_Type)) +
+  geom_col(aes(fill = MedianPay_Type),
+           position = "dodge") +
+  coord_flip() +
+  labs(title = "Median Salary Based on Glassdoor & BLS",
+       x = "Metropolitan Area",
+       y = "Annual Salary in USD",
+       fill = "Data source:") +
+  scale_fill_brewer(palette = "Set2") +
+  scale_y_continuous(labels = comma) +
+  # scale_fill_manual(labels = c("Glassdoor Median Pay", "BLS Median Pay"), values = c("green", "red")) +
+  theme_get() +
+  # theme(legend.text = element_text())
+  facet_wrap(~as.factor(as.character(Year)))
+plot5
+```
+
+```{r}
+ggplotly(plot5)
 ```
 
 ## Show distributions of company size's salary and job openings!
 
+```{r}
+options(scipen = 999)
+ggplot(JobOpening_CompanySize, aes(x = Company_Size,
+                                   y = Openings)) +
+  geom_jitter(aes(color = Area)) +
+  coord_flip() +
+  scale_y_continuous(labels = comma) +
+  labs(title = "Distribution of Job Openings Based on Company Size",
+       x = "Company Size",
+       y = "Number of Openings") +
+  theme_grey() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+        axis.title.x = element_text(size = 10),
+        axis.title.y = element_text(size = 10),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_text(size = 8))
+```
+
+```{r}
+ggplot(Salary_CompanySize, aes(x = Company_Size,
+                                   y = Salary)) +
+  geom_boxplot(aes(fill = Company_Size), outlier.alpha = 0, show.legend = F) +
+  geom_jitter(aes(color = Area), alpha = 0.5) +
+  coord_flip() +
+  scale_y_continuous(labels = comma) +
+  labs(title = "Distribution of Job Salary Based on Company Size",
+       x = "Company Size",
+       y = "Annual Salary in USD") +
+  theme_grey() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+        axis.title.x = element_text(size = 10),
+        axis.title.y = element_text(size = 10),
+        axis.text.x = element_text(size = 8),
+        axis.text.y = element_text(size = 8))
+```
 
 
 ## Show distributions of sectors' salary and job openings!
