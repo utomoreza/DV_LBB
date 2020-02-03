@@ -1263,3 +1263,5 @@ We've finished all stages to deliver this article. And now, let's conclude all o
   2. Energy & Utilities, Biotech & Pharmaceuticals, Aerospace & Defense, Computer Software & Hardware, Consulting, and Architecture & Civil Engineering are top 5 sectors with the highest salary in Boston.
   3. It is true that big corporates in San Francisco pay more for their employees than startups in New York City pay; even the gap is steep enough.
   4. The relationship between salary and job openings is small negative with correlation value `-0.363`.
+  5. Despite of being slight, there exists a rise of median salary from 2018 to 2019 on each median salary type. The salary of Metro Median Pay always stays higher than that of US Median Pay.
+  6. For job opening case, probably, there is a tendency that big corporates have more budgets to recruit new employees. Meanwhile, for salary case, the more a company has employees, the higher the probability the salary it offers.
