@@ -962,7 +962,7 @@ ggplotly(plot2)
 
 From above figures, we can see that top 4 sectors in 2018 and 2019 are the same. Those sectors stay remained in big four for 2 years. The second highest sector, Biotech and Pharmaceuticals, strengthens the relationship between the first and the second questions that Pharmacists, as one of highest paid job, perhaps also work at Biotech and Pharmaceuticals sector which is also one of sectors with highest salary.
 
-## Is it true that a company with more than 5000 employees in San Francisco pays its employees' salary higher than a startup (a company with employees equal or less than 200) in NYC? Show the data in every year!
+## Is it true that a company with more than 5000 employees in San Francisco pays its employees' salary higher than a startup (a company with employees equal or less than 200) in NYC? Show the data in every year! {#q3}
 
 In order to answer this question, we need `Salary_CompanySize` dataframe. Afterwards, we filter the data by San Francisco and New York City areas and company sizes of more than 5000 employees and equal or less than 200.
 
@@ -1140,6 +1140,8 @@ In addition to analyze the relationship by viewing on the figure, we can use cor
 
 ## Compare salaries of each area from Metro Median Pay and US Median Pay from Quick Facts!
 
+In order to solve this problem, we need two dataframes, called `QuickFacts_MetroMedianPay` and `QuickFacts_USMedianPay`. Next, we group each in their areas and years to find the mean of salary. After this step has been done, we can combine both dataframes to compare their salary values and plot them.
+
 ```{r}
 Q5_DF1 <- QuickFacts_MetroMedianPay %>% 
   group_by(Area, year(Date)) %>% 
@@ -1170,22 +1172,30 @@ plot5 <- ggplot(Q5_DF_long, aes(x = reorder(Area, Value),
        fill = "Data source:") +
   scale_fill_brewer(palette = "Set2") +
   scale_y_continuous(labels = comma) +
-  # scale_fill_manual(labels = c("Glassdoor Median Pay", "BLS Median Pay"), values = c("green", "red")) +
   theme_get() +
-  # theme(legend.text = element_text())
   facet_wrap(~as.factor(as.character(Year)))
 plot5
 ```
+
+And now let's see the plot in an interactive way.
 
 ```{r}
 ggplotly(plot5)
 ```
 
-## Show distributions of company size's salary and job openings!
+From both figures above, we can infer that despite of being slight, there exists a rise of median salary from 2018 to 2019 on each median salary type. In addition, we can see clearly that the salary of Metro Median Pay always stays higher than that of US Median Pay.
+
+## Show distributions of company size's job openings and salary!
+
+In order to solve this problem, we need two dataframes, i.e. `JobOpening_CompanySize` and `Salary_CompanySize`. Let's plot each of them.
+
+* Job Openings Based on Company Size
 
 ```{r}
 options(scipen = 999)
-ggplot(JobOpening_CompanySize, aes(x = Company_Size,
+JobOpening_CompanySize_NoNat <- JobOpening_CompanySize %>% 
+  filter(Area != "National")
+plot6a <- ggplot(JobOpening_CompanySize_NoNat, aes(x = Company_Size,
                                    y = Openings)) +
   geom_jitter(aes(color = Area)) +
   coord_flip() +
@@ -1199,10 +1209,23 @@ ggplot(JobOpening_CompanySize, aes(x = Company_Size,
         axis.title.y = element_text(size = 10),
         axis.text.x = element_text(size = 8),
         axis.text.y = element_text(size = 8))
+plot6a
 ```
 
+And now let's see the plot in an interactive way.
+
 ```{r}
-ggplot(Salary_CompanySize, aes(x = Company_Size,
+ggplotly(plot6a)
+```
+
+From the two figures above, we can see that the majority of company size stays between 0 and 50,000 job openings, whereas the companies with more than 5000 employees tend to open much more job openings, even those in New York City. Probably, this indicates that big corporates have a tendency to possess more budgets to recruit new employees.
+
+Next, let's see the distribution for company size based on their salary.
+
+```{r}
+Salary_CompanySize_noNat <- Salary_CompanySize %>% 
+  filter(Area != "National")
+plot6b <- ggplot(Salary_CompanySize_noNat, aes(x = reorder(Company_Size, Salary),
                                    y = Salary)) +
   geom_boxplot(aes(fill = Company_Size), outlier.alpha = 0, show.legend = F) +
   geom_jitter(aes(color = Area), alpha = 0.5) +
@@ -1217,8 +1240,16 @@ ggplot(Salary_CompanySize, aes(x = Company_Size,
         axis.title.y = element_text(size = 10),
         axis.text.x = element_text(size = 8),
         axis.text.y = element_text(size = 8))
+plot6b
 ```
 
+And let's see the plot in an interactive way.
+
+```{r}
+ggplotly(plot6b)
+```
+
+From two figures above, we see something interesting. We can conclude that the more a company has employees, the higher the probability the salary it offers. This interpretation also supports our previous statement in [the third question](#q3) that a big corporate tends to pay higher for its employees.
 
 ## Show distributions of sectors' salary and job openings!
 
