@@ -28,6 +28,7 @@ This article aims to meet the second LBB (Learn by Building) assignment from Alg
 
 * The usage of `dplyr` package is emphasized.
 * More research questions are provided.
+* More figures are provided.
 * `ggplot2` and `plotly` packages are utilized to plot the data instead of base plot.
 
 In this article, you could expect to find the following sections:
@@ -49,8 +50,6 @@ By arranging this article, I'm going to tackle with these problems as follows:
 4. What is the relationship between salary and job openings in the US?
 5. Compare salaries of each area from Metro Median Pay and US Median Pay from Quick Facts!
 6. Show distributions of company size's salary and job openings!
-7. Show distributions of sectors' salary and job openings!
-8. Show distributions of salary and job openings from Time Series!
 
 # Dataset {#daset}
 
@@ -1250,14 +1249,6 @@ ggplotly(plot6b)
 ```
 
 From two figures above, we see something interesting. We can conclude that the more a company has employees, the higher the probability the salary it offers. This interpretation also supports our previous statement in [the third question](#q3) that a big corporate tends to pay higher for its employees.
-
-## Show distributions of sectors' salary and job openings!
-
-
-
-## Show distributions of salary and job openings from Time Series!
-
-
 
 # Conclusions {#concl}
 
