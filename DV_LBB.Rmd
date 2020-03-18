@@ -949,7 +949,8 @@ plot2 <- ggplot(Q2_ans, aes(x = reorder(Sector, Salary),
   theme_minimal() +
   scale_y_continuous(labels = comma) +
   facet_grid(vars(Year), scales = "free") +
-  geom_label(aes(y = Salary, label = Salary), label.size = 0.15, nudge_y = -5000)
+  geom_text(aes(y = Salary, label = Salary), size = 0.15, nudge_y = -5000) +
+  theme(legend.position = "none")
 plot2
 ```
 
